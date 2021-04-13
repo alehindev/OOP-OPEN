@@ -133,6 +133,10 @@ public:
         }
         cout << "}";
     }
+    void print(int index)
+    {
+        cout << "\nUnit with index (" << index << ") is " << ptr[index];
+    }
 };
 
 class MyArrayChild : public MyArrayParent
@@ -150,7 +154,21 @@ public:
     }
 
     //удаление элемента
-    //void RemoveAt(int index = -1){};
+    void RemoveAt(int index = -1)
+    {
+        if (index == -1)
+        {
+            count--;
+        }
+        else if (index > -1)
+        {
+            count--;
+            for (int i = index; i < count; i++)
+            {
+                ptr[i] = ptr[i + 1];
+            }
+        }
+    }
 
     //поиск элемента
     int IndexOf(double value, bool bFindFromStart = true)
@@ -176,6 +194,11 @@ public:
             }
         }
         return -1;
+    }
+
+    void Clear()
+    {
+        count = 0;
     }
 
     //вставка элемента
@@ -207,17 +230,46 @@ public:
     }
 
     //выделение подпоследовательности
-    //MyArrayChild SubSequence(int StartIndex = 0, int Length = -1)
+    MyArrayChild SubSequence(int StartIndex = 0, int Length = -1)
+    {
+        MyArrayChild array;
+        if (Length < 0)
+        {
+            Length = count;
+        }
+        for (int i = StartIndex; i < StartIndex + Length; i++)
+        {
+            array.push(ptr[i]);
+        }
+        return array;
+    }
 
-    //добавление элемента в конец
-
-    //operator + ?
+    //функция, которая возвращает индексы всех вхождений максимума в массив
+    MyArrayChild IndexOfMax()
+    {
+        MyArrayChild array;
+        double Max = ptr[0];
+        for (int i = 0; i < count; i++)
+        {
+            if (Max < ptr[i])
+            {
+                Max = ptr[i];
+                array.count = 0;
+                array.push(i);
+            }
+            else if (Max == ptr[i])
+            {
+                array.push(i);
+            }
+        }
+        return array;
+    }
 };
 
 class MySortedArray : public MyArrayChild
 {
 protected:
-    int BinSearch(double value, double left, double right)
+    int RecBinSearch(double value, double left, double right)
     {
         double eps = 0.00001;
         int Middle = (left + right) / 2;
@@ -227,14 +279,14 @@ protected:
         }
         if (ptr[Middle] > value)
         {
-            return BinSearch(value, left, Middle);
+            return RecBinSearch(value, left, Middle);
         }
         else
         {
-            return BinSearch(value, Middle, right);
+            return RecBinSearch(value, Middle, right);
         }
     }
-    int ModBinSearch(double value, double left, double right)
+    int ModRecBinSearch(double value, double left, double right)
     {
         int Middle = (left + right) / 2;
         if (right - left <= 1)
@@ -243,11 +295,37 @@ protected:
         }
         if (ptr[Middle] > value)
         {
-            return ModBinSearch(value, left, Middle);
+            return ModRecBinSearch(value, left, Middle);
         }
         else
         {
-            return ModBinSearch(value, Middle, right);
+            return ModRecBinSearch(value, Middle, right);
+        }
+    }
+
+    int ModBinSearch(double value, double left, double right)
+    {
+        double search = -1;
+        while (left <= right) // пока левая граница не "перескочит" правую
+        {
+            int mid = (left + right) / 2; // ищем середину отрезка
+            if (value == ptr[mid])
+            {                 // если ключевое поле равно искомому
+                search = mid; // мы нашли требуемый элемент,
+                break;        // выходим из цикла
+            }
+            if (value < ptr[mid]) // если искомое ключевое поле меньше найденной середины
+                right = mid - 1;  // смещаем правую границу, продолжим поиск в левой части
+            else                  // иначе
+                left = mid + 1;   // смещаем левую границу, продолжим поиск в правой части
+        }
+        if (search == -1)
+        {
+            return left;
+        }
+        else
+        {
+            return search;
         }
     }
 
@@ -257,7 +335,7 @@ public:
 
     int IndexOf(double value, bool bFindFromStart = true)
     {
-        return BinSearch(value, 0, count);
+        return RecBinSearch(value, 0, count);
     }
     void push(double value)
     {
@@ -276,7 +354,29 @@ public:
 int main()
 {
 
-    double a[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    /*
+    MyArrayChild array;
+    for (int i = 10; i < 21; i++)
+    {
+        array.push(i);
+    }
+    array.print();
+    array.InsertAt(34);
+    array.print();
+    cout << "\nindex of 34: " << array.IndexOf(34);
+    array.InsertAt(67);
+    array.print();
+    array.RemoveAt(1);
+    array.print();
+    array.SubSequence(0, 7).print();
+    array.IndexOfMax().print();
+    array.push(67);
+    array.IndexOfMax().print();
+    array.push(177);
+    array.IndexOfMax().print();
+   
+   */
+
     MySortedArray g;
     g.push(1);
     g.push(4);
@@ -290,7 +390,7 @@ int main()
     g.push(2);
     g.push(1);
     g.print();
-    //нужно описать бинпоиск через цикл и функция из практической работы
+
     return 0;
 }
 
