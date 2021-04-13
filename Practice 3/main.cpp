@@ -1,5 +1,7 @@
 #include <iostream>
+
 using namespace std;
+
 class A1
 {
 protected:
@@ -20,6 +22,7 @@ public:
         cout << "\na1 = " << a1;
     }
 };
+
 class B1 : virtual public A1
 {
 protected:
@@ -31,8 +34,7 @@ public:
         b1 = V1;
         cout << "\nClass B1 constructor ";
     }
-    virtual void
-    print()
+    virtual void print()
     {
         cout << "\nVariable of B1 class";
     }
@@ -49,39 +51,61 @@ public:
         b2 = V1;
         cout << "\nClass B2 constructor ";
     }
-    virtual void
-    print()
+    virtual void print()
     {
         cout << "\nVariable of B2 class";
     }
-    virtual void show() { cout << "\nb2 = " << b2 << ", a1 = " << a1; }
+    virtual void show()
+    {
+        cout << "\nb2 = " << b2 << ", a1 = " << a1;
+    }
 };
 
-class C1 : public B1, public B2
+class C1 : virtual public B1, virtual public B2
 {
 protected:
-    int c1;
+    double c1;
 
 public:
-    void print()
+    C1()
+    {
+        cout << "\nC1 constuctor working";
+    }
+    C1(double a, double b, double c) : B1(b, a), B2(b, a)
+    {
+        c1 = c;
+        cout << "\nC1 constuctor working";
+    }
+
+    virtual void print()
     {
         cout << "\nVariable of C1 class";
     }
-    void show()
+    virtual void show()
     {
-        cout << "\nc1 = " << c1;
+        cout << '\n'
+             << "a1 = " << a1 << '\n';
+        cout << "b1 = " << b1 << '\n';
+        cout << "b2 = " << b2 << '\n';
+        cout << "c1 = " << c1 << '\n';
     }
 };
 
 int main()
 {
-    B1 test(1, 2);
-    test.show();
-    test.print();
-    A1 *ptr = &test;
-    ptr->show();
-    ptr->print();
-    char c;
-    std::cin >> c;
-    return 0;
+    if (true)
+    {
+        A1 a(1);
+        a.show();
+        a.print();
+        B1 b1(1 , 2);
+        b1.show();
+        b1.print();
+        B2 b2(3, 4);
+        b2.show();
+        b2.print();
+        C1 c(1, 2, 3);
+        c.print();
+        c.show();
+    }
 }
