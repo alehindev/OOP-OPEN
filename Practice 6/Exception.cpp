@@ -1,6 +1,5 @@
 ﻿#include <iostream>
-#include "bits/stdc++.h"
-
+#include <cstring>
 using namespace std;
 
 class Exception : public exception
@@ -13,12 +12,18 @@ public:
 	Exception(const char *s)
 	{
 		str = new char[strlen(s) + 1];
-		strcpy_s(str, strlen(s) + 1, s);
+		strcpy(str, s);
+	}
+	Exception()
+	{
+		char s[] = "Unknown exception";
+		str = new char[strlen(s) + 1];
+		strcpy(str, s);
 	}
 	Exception(const Exception &e)
 	{
 		str = new char[strlen(e.str) + 1];
-		strcpy_s(str, strlen(e.str) + 1, e.str);
+		strcpy(str, e.str);
 	}
 	~Exception()
 	{
@@ -31,6 +36,7 @@ public:
 		cout << "Exception: " << str << "; " << what();
 	}
 };
+
 class WrongDimensionException : public Exception
 {
 protected:
@@ -41,7 +47,7 @@ protected:
 	int width2;
 
 public:
-	WrongDimensionException(const char *s, int H1, int W1, int H2, int W2) : Exception(s)
+	WrongDimensionException(int H1, int W1, int H2, int W2) : Exception("Wrong dimensions")
 	{
 		height1 = H1;
 		height2 = H2;
@@ -51,208 +57,299 @@ public:
 	WrongDimensionException(const WrongDimensionException &e)
 	{
 		str = new char[strlen(e.str) + 1];
-		strcpy_s(str, strlen(e.str) + 1, e.str);
+		strcpy(str, e.str);
 	}
-	~WrongDimensionException()
-	{
-	}
+
+	~WrongDimensionException() {}
 
 	//функцию вывода можно будет переопределить в производных классах, когда будет ясна конкретика
 	virtual void print()
 	{
-		cout « "Exception: " « str« "; dimensions of matrices: "«height1«", "«what();
-		cout « "; "«height2«", "«width2«"; "«what();
+		cout << "Exception: " << str << "; dimensions of matrices: " << height1 << ", " << what();
+		cout << "; " << height2 << ", " << width2 << "; " << what();
 	}
 };
 
-//теперь наследуем ошибки от Exception
-class DivisionByZero : public Exception
+class WrongSizeException : public Exception
 {
-	//деление на 0
-private:
-	//числитель
-	int numerator;
+protected:
+	//сообщение об ошибке
+	int height;
+	int width;
 
 public:
-	//конструктор
-	DivisionByZero(int Numerator) : Exception("attempt to divide by zero")
+	WrongSizeException(int H, int W) : Exception("Wrong size")
 	{
-		numerator = Numerator;
+		height = H;
+		width = W;
 	}
 
-	//get-тер - получение числителя извне
-	int getNumerator() { return numerator; }
+	WrongSizeException() : Exception("Wrong size")
+	{
+		height = 0;
+		width = 0;
+	}
+	WrongSizeException(const WrongSizeException &e)
+	{
+		str = new char[strlen(e.str) + 1];
+		strcpy(str, e.str);
+		height = e.height;
+		width = e.width;
+	}
 
-	//вывод сообщения - переопределение виртуальной функции базового класса
+	~WrongSizeException() {}
+
+	//функцию вывода можно будет переопределить в производных классах, когда будет ясна конкретика
+	virtual void print()
+	{
+		cout << "Exception: " << str << "; dimensions of matrices: " << height << ", " << width << "; " << what();
+	}
+};
+
+class NullSizeException : public WrongSizeException
+{
+
+public:
+	NullSizeException(int H, int W) : WrongSizeException(H, W) {}
+
+	NullSizeException() : WrongSizeException(0, 0) {}
+
+	NullSizeException(const NullSizeException &e)
+	{
+		str = new char[strlen(e.str) + 1];
+		strcpy(str, e.str);
+		height = e.height;
+		width = e.width;
+	}
+};
+
+class NegativeSizeException : public WrongSizeException
+{
+
+public:
+	NegativeSizeException(int H, int W) : WrongSizeException(H, W) {}
+
+	NegativeSizeException() : WrongSizeException(0, 0) {}
+
+	NegativeSizeException(const NegativeSizeException &e)
+	{
+		str = new char[strlen(e.str) + 1];
+		strcpy(str, e.str);
+		height = e.height;
+		width = e.width;
+	}
+};
+
+class IndexOutOfBoundsException : public WrongSizeException
+{
+protected:
+	int height, width;
+
+public:
+	IndexOutOfBoundsException(int H, int W) : WrongSizeException(H, W) {}
+
+	IndexOutOfBoundsException() : WrongSizeException(0, 0) {}
+
+	IndexOutOfBoundsException(const IndexOutOfBoundsException &e)
+	{
+		str = new char[strlen(e.str) + 1];
+		strcpy(str, e.str);
+		height = e.height, width = e.width;
+	}
+};
+
+template <class T>
+class BaseMatrix
+{
+protected:
+	T **ptr;
+	int height;
+	int width;
+	BaseMatrix ScalarProduct(double *arr1, double *arr2, int len)
+
+	{
+		double res = 0;
+		for (int i = 0; i < len; i++)
+		{
+			res += arr1[i] * arr2[i];
+		}
+		return res;
+	}
+
+public:
+	BaseMatrix<T>(int Height = 2, int Width = 2) // constructor
+	{
+		//if(Height<=0 || Width<=0)
+		//  throw WrongSizeException(height, width);
+		if (row > height || column > height)
+		{
+			throw IndexOutOfBoundsException(Height, Width);
+		}
+		if (Height < 0 || Width < 0)
+		{
+			throw NegativeSizeException(Height, Width);
+		}
+		if (Height == 0 || Width == 0)
+		{
+			throw NullSizeException(Height, Width);
+		}
+		height = Height;
+		width = Width;
+		ptr = new T *[height];
+		for (int i = 0; i < height; i++)
+			ptr[i] = new T[width];
+	}
+
+	BaseMatrix(const BaseMatrix &M) //constructor of copy
+	{
+		height = M.height;
+		width = M.width;
+		ptr = new double *[height];
+		for (int i = 0; i < height; i++)
+			ptr[i] = new double[width];
+
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				ptr[i][j] = M.ptr[i][j];
+			}
+		}
+	}
+	// T Max(T a,T b)
+	// {
+	//     return a<b?b:a>
+	// }
+
+	~BaseMatrix()
+	{
+		// Деструктор
+		if (ptr != NULL)
+		{
+			for (int i = 0; i < height; i++)
+				delete[] ptr[i];
+			delete[] ptr;
+			ptr = NULL;
+		}
+	}
+
 	void print()
 	{
-		cout << "Exception: " << str << ", numerator = " << numerator << "; " << what();
-		//также можно воспользоваться функцией вывода базового класса и потом дописать числитель
-		//из-за того, что она называется так же, как эта функция, указываем класс, откуда её берём
-		//Exception::print();
-		//cout << ", numerator = " << numerator;
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+				cout << ptr[i][j] << " ";
+			cout << "\n";
+		}
 	}
-};
-
-class NegativeDenominator : public Exception
-{
-	//отрицательный знаменатель
-private:
-	//исходная дробь
-	//числитель
-	int numerator;
-	//знаменатель
-	int denominator;
-	//значение, которое пытались установить
-	int value;
-
-public:
-	//конструктор
-	NegativeDenominator(int Numerator, int Denominator, int Value) : Exception("attempt to set negative denominator")
+	double &operator()(int row, int column)
 	{
-		numerator = Numerator;
-		denominator = Denominator;
-		value = Value;
+		if (row >= height || column >= height || row < 0 || column < 0)
+		{
+			throw IndexOutOfBoundsException(Height, Width);
+		}
+
+		return ptr[row][column];
 	}
-
-	//get-теры - получение дроби извне
-	int getNumerator() { return numerator; }
-	int getDenominator() { return denominator; }
-	//получение значения, которое пытались установить в знаменатель
-	int getValue() { return value; }
-
-	//вывод сообщения
-	void print()
+	BaseMatrix operator+(BaseMatrix M)
 	{
-		cout << "Exception: " << str << ", value = " << value << ", Fraction = " << numerator << "/" << denominator << "; " << what();
-		//также можно воспользоваться функцией вывода базового класса и потом дописать числитель
-		//из-за того, что она называется так же, как эта функция, указываем класс, откуда её берём
-		//Exception::print();
-		//cout << ", value = " << value << ", Fraction = "<<numerator<<"/"<<denominator;
+		if (height != M.height || width != M.width)
+			throw WrongDimensionException(height, width, M.height, M.width);
+		BaseMatrix Res(height, width);
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				Res.ptr[i][j] = ptr[i][j];
+			}
+		}
 	}
-};
-
-class Fraction
-{
-private:
-	//числитель
-	int numerator;
-	//знаменатель
-	int denominator;
-
-public:
-	//get-теры - получение значений числителя и знаменателя извне
-	int getNumerator() { return numerator; }
-	int getDenominator() { return denominator; }
-
-	//установка числителя
-	void setNumerator(int value) { numerator = value; }
-
-	//умножение
-	Fraction operator*(Fraction F)
+	BaseMatrix Transpose()
 	{
-		Fraction Res;
-		Res.numerator = numerator * F.numerator;
-		Res.denominator = denominator * F.denominator;
+		// транспонирование матрциы
+		BaseMatrix Res(width, height);
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				Res.ptr[j][i] = ptr[i][j]; //Res(j,i) = ptr[i][j];
+			}
+		}
 		return Res;
 	}
-
-	//вывод
-	void print()
+	double *operator*(double *arr)
 	{
-		cout << numerator << "/" << denominator;
-	}
-
-	//конструктор
-	Fraction(int Numerator = 0, int Denominator = 1)
-	{
-		if (Denominator == 0)
-			throw DivisionByZero(Numerator);
-		if (Denominator < 0)
-			throw NegativeDenominator(0, 1, Denominator);
-
-		//здесь всё хорошо
-		numerator = Numerator;
-		denominator = Denominator;
-	}
-
-	//set-тер для знаменателя
-	void setDenominator(int value)
-	{
-		if (value == 0)
-			throw DivisionByZero(numerator);
-		if (value < 0)
-			throw NegativeDenominator(numerator, denominator, value);
-
-		//здесь всё хорошо
-		denominator = value;
+		double *res = new double[width];
+		for (int i = 0; i < height; i++)
+		{
+			res[i] = ScalarProduct(ptr[i], arr, width);
+		}
+		return res;
 	}
 };
 
 int main()
 {
-	//здесь всё хорошо
-	Fraction F1(1, 2);
-	Fraction F2(1, 3);
-	Fraction F3 = F1 * F2;
-	F3.print();
-
-	//а здесь сгенерируем исключение
+	// int x;int y;
+	// x=1;y=2;
+	// cout<<"\nMax = "<<Max(x,y)<<"\n";
 	try
 	{
-		Fraction G(1, 0);
-		//сюда мы уже не попадём
-		Fraction H = G * F1;
-		H.print();
+		BaseMatrix<double> M(-2, 3);
+
+		M(0, 0) = 1;
+		M(0, 1) = 2;
+		M(1, 0) = 3;
+		M(1, 1) = 4;
+		M(0, 2) = 5;
+		M(1, 2) = 6;
+
+		M.print();
+
+		BaseMatrix<double> C = M.Transpose();
+		cout << "\n";
+		C.print();
+		BaseMatrix<double> Sum = C + M;
 	}
-	catch (DivisionByZero d)
+	catch (IndexOutOfBoundsException e)
 	{
-		//здесь обрабатываем исключение
-		cout << "\nDivision by zero exception has been caught:\n";
-		d.print();
-	}
-	catch (NegativeDenominator n)
-	{
-		//здесь обрабатываем исключение
-		cout << "\nNegative denominator exception has been caught:\n";
-		n.print();
-	}
-	//catch для всех ошибок таких типов, которые мы спроектировали сами, - в случае, если нет конкретики
-	catch (Exception e)
-	{
-		//здесь обрабатываем исключение
 		cout << "\nException has been caught: ";
 		e.print();
 	}
-	//catch, который среагирует на любые ошибки, - закроет всё, что не обработали предыдущие блоки catch
-	catch (...)
+	catch (WrongDimensionException e)
 	{
-		//здесь обрабатываем исключение
-		cout << "\nSomething has happened";
-	}
-
-	//вторая попытка
-	try
-	{
-		F1.setDenominator(-1);
-		//сюда мы уже не попадём
-		F3 = F1 * F2;
-		F3.print();
-	}
-	//catch для всех ошибок таких типов, которые мы спроектировали сами, - в случае, если нет конкретики
-	catch (Exception e)
-	{
-		//здесь обрабатываем исключение
 		cout << "\nException has been caught: ";
 		e.print();
 	}
-	//просмотр дошёл до catch(...) - срабатывает он
-	catch (...)
+	catch (WrongSizeException e) //Искчлючение неправильного размера
 	{
-		//здесь обрабатываем исключение
-		cout << "\nSomething has happened";
+		cout << "\nException has been caught: ";
+		e.print();
 	}
-	char c3;
-	std::cin >> c3;
+	catch (NullSizeException e) //Искчлючение нулевого размера
+	{
+		cout << "\nException has been caught: ";
+		e.print();
+	}
+	catch (Exception e) //Наши исключения
+	{
+		cout << "\nException has been caught: ";
+		e.print();
+	}
+	catch (exception e) //Вообще все исключения
+	{
+		cout << "\nException has been caught: ";
+		e.what();
+	}
+
+	// double vec[] = {10, 20};
+
+	// double* vec1 = M * vec;
+	// cout<<"\nM * {10,20} = {"<<vec1[0]<<", "<<vec1[1]<<"}";
+
+	// BaseMatrix Mt = M.Transpose();
+	// Mt.print();
+
+	// char c; cin >> c;
 	return 0;
 }
