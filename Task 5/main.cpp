@@ -121,7 +121,7 @@ public:
 class Exception : public exception
 {
 protected:
-    //сообщение об ошибке
+    //сообщение об ошибкеыыыы   
     char *str;
 
 public:
