@@ -8,10 +8,14 @@ protected:
     int a1;
 
 public:
-    A1(int V1 = 0)
+    A1()
     {
-        a1 = V1;
         cout << "\nClass A1 constructor";
+    }
+    A1(int V1)
+    {
+        A1::a1 = V1;
+        cout << "\nClass A1 constructor modifed";
     }
     virtual void print()
     {
@@ -19,6 +23,7 @@ public:
     }
     virtual void show()
     {
+
         cout << "\na1 = " << a1;
     }
 };
@@ -79,12 +84,13 @@ public:
 
     virtual void print()
     {
+
         cout << "\nVariable of C1 class";
     }
     virtual void show()
     {
         cout << '\n'
-             << "a1 = " << a1 << '\n';
+             << "a1 = " << B1::a1 << '\n';
         cout << "b1 = " << b1 << '\n';
         cout << "b2 = " << b2 << '\n';
         cout << "c1 = " << c1 << '\n';
@@ -95,15 +101,6 @@ int main()
 {
     if (true)
     {
-        A1 a(1);
-        a.show();
-        a.print();
-        B1 b1(1 , 2);
-        b1.show();
-        b1.print();
-        B2 b2(3, 4);
-        b2.show();
-        b2.print();
         C1 c(1, 2, 3);
         c.print();
         c.show();
