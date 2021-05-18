@@ -3,19 +3,116 @@
 
 using namespace std;
 
+class Exception : public exception
+{
+protected:
+    //сообщение об ошибке
+    char *str;
+
+public:
+    Exception(const char *s)
+    {
+        str = new char[strlen(s) + 1];
+        strcpy(str, s);
+    }
+    Exception(const Exception &e)
+    {
+        str = new char[strlen(e.str) + 1];
+        strcpy(str, e.str);
+    }
+    ~Exception()
+    {
+        delete[] str;
+    }
+    //функцию вывода можно будет переопределить в производных классах, когда будет ясна конкретика
+    virtual void print()
+    {
+        cout << "Exception: " << str << "; " << what();
+    }
+};
+
+class WrongSizeException : public Exception
+{
+protected:
+    int height, width;
+
+public:
+    WrongSizeException(int H, int W) : Exception("Wrong size")
+    {
+        height = H, width = W;
+    }
+
+    WrongSizeException() : Exception("Wrong size")
+    {
+        height = 0, width = 0;
+    }
+
+    WrongSizeException(const WrongSizeException &e) : Exception("Wrong size")
+    {
+        str = new char[strlen(e.str) + 1];
+        strcpy(str, e.str);
+        height = e.height, width = e.width;
+    }
+
+    virtual void print()
+    {
+        cout << "Exception: " << str << "; dimensions of matrix: " << height << ", " << width << "; " << what();
+    }
+};
+
+class IndexOutOfBounds : public Exception
+{
+private:
+    int index1;
+    int index2;
+
+public:
+    IndexOutOfBounds() : Exception("Wrong index")
+    {
+        index1 = -1;
+        index2 = -1;
+    }
+
+    IndexOutOfBounds(int i, int j) : Exception("Wrong index")
+    {
+        index1 = i;
+        index2 = j;
+    }
+    IndexOutOfBounds(const IndexOutOfBounds &e) : Exception("Wrong size")
+    {
+        str = new char[strlen(e.str) + 1];
+        strcpy(str, e.str);
+        index1 = e.index1;
+        index2 = e.index2;
+    }
+
+    virtual void print()
+    {
+        cout << "Exception: " << str << "; index_1: " << index1 << "; "
+             << "; index_2: " << index2 << "; " << what();
+    }
+};
+
 class BaseMatrix
 {
 protected:
     double **ptr;
     int height;
     int width;
+    double ScalarProduct(double *arr1, double *arr2, int len)
+    {
+        double res = 0;
+        for (int i = 0; i < height; i++)
+            res += arr1[i] * arr2[i];
+        return res;
+    }
 
 public:
     BaseMatrix(int Height = 2, int Width = 2)
     {
         if (Height < 1 && Width < 1)
         {
-            throw indexOutOfBounds();
+            throw WrongSizeException(Height, Width);
         }
         height = Height;
         width = Width;
@@ -57,7 +154,12 @@ public:
         }
     }
 
-    double &operator()(int row, int column) { return ptr[row][column]; }
+    double &operator()(int row, int column)
+    {
+        if (row > height || row < 0 || column > width || column < 0)
+            throw IndexOutOfBounds(row, column);
+        return ptr[row][column];
+    }
 
     BaseMatrix Transponse()
     {
@@ -116,69 +218,25 @@ public:
         y /= divider;
         return (make_pair(x, y));
     }
-};
-
-class Exception : public exception
-{
-protected:
-    //сообщение об ошибкеыыыы   
-    char *str;
-
-public:
-    Exception(const char *s)
+    friend ostream &operator<<(ostream &ustream, myMatrix &obj)
     {
-        str = new char[strlen(s) + 1];
-        strcpy(str, s);
+        for (int i = 0; i < obj.height; i++)
+        {
+            for (int j = 0; j < obj.width; j++)
+            {
+                ustream << obj.ptr[i][j] << " ";
+            }
+            ustream << "\n";
+        }
+        return ustream;
     }
-    Exception(const Exception &e)
+    friend istream &operator>>(istream &ustream, myMatrix &obj)
     {
-        str = new char[strlen(e.str) + 1];
-        strcpy(str, e.str);
+        
+        for (istream >> s; !file.eof(); istream >> s)
+            cout << s << endl;
+        return ustream;
     }
-    ~Exception()
-    {
-        delete[] str;
-    }
-    //функцию вывода можно будет переопределить в производных классах, когда будет ясна конкретика
-    virtual void print()
-    {
-        cout << "Exception: " << str << "; " << what();
-    }
-};
-
-class WrongSizeException : public Exception
-{
-protected:
-    int height, width;
-
-public:
-    WrongSizeException(int H, int W) : Exception("Wrong size")
-    {
-        height = H, width = W;
-    }
-
-    WrongSizeException() : Exception("Wrong size")
-    {
-        height = 0, width = 0;
-    }
-
-    WrongSizeException(const WrongSizeException &e) : Exception("Wrong size")
-    {
-        str = new char[strlen(e.str) + 1];
-        strcpy(str, e.str);
-        height = e.height, width = e.width;
-    }
-
-    virtual void print()
-    {
-        cout << "Exception: " << str << "; dimensions of matrix: " << height << ", " << width << "; " << what();
-    }
-};
-
-class indexOutOfBounds : public Exception
-{
-public:
-    indexOutOfBounds()
 };
 
 int main()
@@ -190,5 +248,23 @@ int main()
     coor = b.getCoorOfWeigth();
     cout << coor.first << " " << coor.second << endl;
     b.print();
+    try
+    {
+        BaseMatrix a(2, 2);
+        a(2, -1) = 123;
+    }
+    catch (IndexOutOfBounds exc)
+    {
+        exc.print();
+    }
+    catch (WrongSizeException exc)
+    {
+        exc.print();
+    }
+    catch (...)
+    {
+        cout << "Something went wrong!" << endl;
+    }
+
     return 0;
 }
