@@ -220,6 +220,8 @@ public:
     }
     friend ostream &operator<<(ostream &ustream, myMatrix &obj)
     {
+
+        ustream << obj.height << " " << obj.width << '\n';
         for (int i = 0; i < obj.height; i++)
         {
             for (int j = 0; j < obj.width; j++)
@@ -232,9 +234,18 @@ public:
     }
     friend istream &operator>>(istream &ustream, myMatrix &obj)
     {
-        
-        for (istream >> s; !file.eof(); istream >> s)
-            cout << s << endl;
+        int temp;
+
+        int height, width;
+        ustream >> height >> width;
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                ustream >> temp;
+                obj.ptr[i][j] = temp;
+            }
+        }
         return ustream;
     }
 };
@@ -243,11 +254,52 @@ int main()
 {
     BaseMatrix a(2, 2);
     myMatrix b(3, 3);
+    myMatrix q(3, 3);
     pair<double, double> coor;
     b.randomValues();
+    q.randomValues();
     coor = b.getCoorOfWeigth();
     cout << coor.first << " " << coor.second << endl;
     b.print();
+    ofstream fout("test.txt");
+    if (fout)
+    {
+        try
+        {
+            fout << q;
+            fout << b;
+            fout.close();
+        }
+        catch (...)
+        {
+            cout << "Exception: failure of writing";
+        }
+    }
+    ifstream fin("test.txt");
+    myMatrix empty_b(3, 3);
+    if (fin)
+    {
+        try
+        {
+
+            while (!fin.eof())
+            {
+                int pos = fin.tellg();
+                int h, w;
+                fin >> h >> w;
+                myMatrix temp(h, w);
+                fin.seekg(pos, fin.beg);
+                fin >> temp;
+                temp.print();
+            }
+            fin.close();
+        }
+        catch (...)
+        {
+            cout << "Exception: failure of reading";
+        }
+    }
+
     try
     {
         BaseMatrix a(2, 2);
