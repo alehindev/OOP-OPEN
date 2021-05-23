@@ -108,7 +108,13 @@ protected:
     }
 
 public:
-    BaseMatrix(int Height = 2, int Width = 2)
+    BaseMatrix()
+    {
+        height = 0;
+        width = 0;
+    }
+
+    BaseMatrix(int Height, int Width)
     {
         if (Height < 1 && Width < 1)
         {
@@ -182,7 +188,12 @@ public:
 class myMatrix : public BaseMatrix
 {
 public:
-    myMatrix(int Height = 2, int Width = 2) : BaseMatrix(Height, Width)
+    myMatrix() : BaseMatrix()
+    {
+        cout << "myMatrix default constructor is working" << endl;
+    }
+
+    myMatrix(int Height, int Width) : BaseMatrix(Height, Width)
     {
         cout << "myMatrix constructor is working" << endl;
     }
@@ -191,13 +202,14 @@ public:
     {
         cout << "myMatrix destructor is working" << endl;
     }
+
     void randomValues()
     {
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)
             {
-                ptr[i][j] = (18 * i) % 5 + (64 * j) % 5;
+                ptr[i][j] = rand() % 10;
             }
         }
     }
@@ -226,7 +238,14 @@ public:
         {
             for (int j = 0; j < obj.width; j++)
             {
-                ustream << obj.ptr[i][j] << " ";
+                if (j == obj.width - 1)
+                {
+                    ustream << obj.ptr[i][j];
+                }
+                else
+                {
+                    ustream << obj.ptr[i][j] << " ";
+                }
             }
             ustream << "\n";
         }
@@ -237,7 +256,15 @@ public:
         int temp;
 
         int height, width;
+
         ustream >> height >> width;
+
+        obj.width = width;
+        obj.height = height;
+        obj.ptr = new double *[height];
+        for (int i = 0; i < height; i++)
+            obj.ptr[i] = new double[width];
+
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)
@@ -246,6 +273,7 @@ public:
                 obj.ptr[i][j] = temp;
             }
         }
+
         return ustream;
     }
 };
@@ -255,12 +283,18 @@ int main()
     BaseMatrix a(2, 2);
     myMatrix b(3, 3);
     myMatrix q(3, 3);
-    pair<double, double> coor;
+    myMatrix z(4, 5);
+
     b.randomValues();
     q.randomValues();
+    z.randomValues();
+
+    pair<double, double> coor;
     coor = b.getCoorOfWeigth();
-    cout << coor.first << " " << coor.second << endl;
-    b.print();
+    cout << endl
+         << coor.first << " " << coor.second << endl
+         << endl;
+
     ofstream fout("test.txt");
     if (fout)
     {
@@ -268,6 +302,7 @@ int main()
         {
             fout << q;
             fout << b;
+            fout << z;
             fout.close();
         }
         catch (...)
@@ -276,27 +311,27 @@ int main()
         }
     }
     ifstream fin("test.txt");
-    myMatrix empty_b(3, 3);
     if (fin)
     {
         try
         {
 
-            while (!fin.eof())
+            int h, w, pos;
+            h = 0;
+            w = 0;
+            pos = fin.tellg();
+            myMatrix tempMatrix;
+            while (fin >> tempMatrix)
             {
-                int pos = fin.tellg();
-                int h, w;
-                fin >> h >> w;
-                myMatrix temp(h, w);
-                fin.seekg(pos, fin.beg);
-                fin >> temp;
-                temp.print();
+                tempMatrix.print();
+                cout << '\n';
             }
+
             fin.close();
         }
         catch (...)
         {
-            cout << "Exception: failure of reading";
+            cout << "Exception: failure of reading\n";
         }
     }
 
