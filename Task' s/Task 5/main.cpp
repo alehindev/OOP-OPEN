@@ -1,3 +1,6 @@
+//КМБО 04-20 АЛЕХИН АРТЁМ
+//КМБО 04-20 АЛЕХИН АРТЁМ
+//КМБО 04-20 АЛЕХИН АРТЁМ
 #include <bits/stdc++.h>
 #include <iostream>
 
@@ -113,7 +116,7 @@ public:
         height = 0;
         width = 0;
     }
-
+    //КМБО 04-20 АЛЕХИН АРТЁМ
     BaseMatrix(int Height, int Width)
     {
         if (Height < 1 && Width < 1)
@@ -126,7 +129,7 @@ public:
         for (int i = 0; i < height; i++)
             ptr[i] = new double[width];
     }
-
+//КМБО 04-20 АЛЕХИН АРТЁМ
     BaseMatrix(const BaseMatrix &M)
     {
         height = M.height;
@@ -138,7 +141,7 @@ public:
             for (int j = 0; j < height; j++)
                 ptr[i][j] = M.ptr[i][j];
     }
-
+//КМБО 04-20 АЛЕХИН АРТЁМ
     ~BaseMatrix()
     {
         if (ptr != NULL)
@@ -277,7 +280,7 @@ public:
         return ustream;
     }
 };
-
+//КМБО 04-20 АЛЕХИН АРТЁМ
 int main()
 {
     BaseMatrix a(2, 2);
@@ -355,3 +358,5 @@ int main()
 
     return 0;
 }
+//КМБО 04-20 АЛЕХИН АРТЁМ
+//КМБО 04-20 АЛЕХИН АРТЁМ

@@ -1,8 +1,10 @@
+//КМБО 04-20 АЛЕХИН АРТЁМ
 
-using namespace std;
 
 #include <iostream>
 #include <bits/stdc++.h>
+
+using namespace std;
 
 class Exception : public exception
 {
@@ -76,7 +78,7 @@ ostream &operator<<(ostream &s, Element<T1> &el)
     s << el.info;
     return s;
 }
-
+//КМБО 04-20 АЛЕХИН АРТЁМ
 template <class T2>
 istream &operator>>(istream &s, Element<T2> &el)
 {
@@ -144,7 +146,7 @@ ostream &operator<<(ostream &s, LinkedList<T1> &el)
         s << *current;
     return s;
 }
-
+//КМБО 04-20 АЛЕХИН АРТЁМ
 template <class T2>
 istream &operator>>(istream &s, LinkedList<T2> &el)
 {
@@ -298,7 +300,7 @@ public:
             fin.close();
             return true;
         }
-        return false;
+        return false; //КМБО 04-20 АЛЕХИН АРТЁМ
     }
 };
 
@@ -453,5 +455,7 @@ int main()
     cout << "--------- Manipulator test ---------" << endl;
 
     cout << myManip << myQueue << endl;
+    //КМБО 04-20 АЛЕХИН АРТЁМ//КМБО 04-20 АЛЕХИН АРТЁМ
     return 0;
 }
+//КМБО 04-20 АЛЕХИН АРТЁМ//КМБО 04-20 АЛЕХИН АРТЁМ
