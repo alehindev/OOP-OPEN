@@ -1,0 +1,21 @@
+3
+Name of country: China
+Capital of country: Pekin
+Language of country: Chinese
+Square of country: Tiananmen Square
+Population of country: 1500000000
+
+
+Name of country: Usa
+Capital of country: Washington
+Language of country: English
+Main square of country: Times Square
+Population of country: 369000000
+
+
+Name of country: Russia
+Capital of country: Moscow
+Language of country: Russian
+Main square of country: Red Square
+Population of country: 145000000
+

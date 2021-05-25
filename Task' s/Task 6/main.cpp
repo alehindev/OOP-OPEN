@@ -1,5 +1,4 @@
-// LinkedListInherit21.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
+
 using namespace std;
 
 #include <iostream>
@@ -40,7 +39,10 @@ public:
     Element *next;
     Element *prev;
     T info;
-
+    Element()
+    {
+        next = prev = NULL;
+    }
     Element(T data)
     {
         next = prev = NULL;
@@ -63,12 +65,22 @@ public:
 
     template <class T1>
     friend ostream &operator<<(ostream &s, Element<T1> &el);
+
+    template <class T2>
+    friend istream &operator>>(istream &s, Element<T2> &el);
 };
 
 template <class T1>
 ostream &operator<<(ostream &s, Element<T1> &el)
 {
     s << el.info;
+    return s;
+}
+
+template <class T2>
+istream &operator>>(istream &s, Element<T2> &el)
+{
+    s >> el.info;
     return s;
 }
 
@@ -116,7 +128,8 @@ public:
 
     template <class T1>
     friend ostream &operator<<(ostream &s, LinkedList<T1> &el);
-
+    template <class T2>
+    friend istream &operator>>(istream &s, LinkedList<T2> &el);
     virtual ~LinkedList()
     {
         cout << "\nBase class destructor";
@@ -129,6 +142,33 @@ ostream &operator<<(ostream &s, LinkedList<T1> &el)
     Element<T1> *current;
     for (current = el.head; current != NULL; current = current->next)
         s << *current;
+    return s;
+}
+
+template <class T2>
+istream &operator>>(istream &s, LinkedList<T2> &el)
+{
+    int count;
+    s >> count;
+    el.count = count;
+    el.head = el.tail = NULL;
+
+    for (int i = 0; i < count; i++)
+    {
+        Element<T2> temp;
+        s >> temp;
+        if (el.head == NULL)
+        {
+            el.head = new Element<T2>(temp.info);
+            el.tail = el.head;
+        }
+        else
+        {
+            el.tail->next = new Element<T2>(temp.info);
+            el.tail->next->prev = el.tail;
+            el.tail = el.tail->next;
+        }
+    }
     return s;
 }
 
@@ -239,81 +279,28 @@ public:
     bool save(string s)
     {
         ofstream fout(s);
-        if (fout.is_open())
+        if (fout)
         {
-            fout << "dsakdjalkjsklflkjasjfk";
+            fout << this->count;
             fout << this[0];
             fout.close();
             return true;
         }
         return false;
     }
-    /*
-    virtual Element<T> *insert(T value)
+
+    bool load(string s, Queue &res)
     {
-        Element<T> temp(value);
-        int pos = rand() % LinkedList<T>::count;
-        if (pos == 0 || LinkedList<T>::count == 0)
+        ifstream fin(s);
+        if (fin)
         {
-            return this->push(value);
+            fin >> res;
+            fin.close();
+            return true;
         }
-        else if (pos == LinkedList<T>::count - 1)
-        {
-            
-
-            temp.prev = LinkedList<T>::tail;
-            LinkedList<T>::tail->next = &temp;
-            LinkedList<T>::tail = &temp;
-            return &temp;
-        }
-        else
-        {
-            Element<T> *ptr = &temp;
-            cout << this->operator[pos];
-            return ptr;
-        }
-    }*/
-    /*
-    virtual void remove()
-    {
-
-        int pos = rand() % LinkedList<T>::count;
-        if (pos == 0 || LinkedList<T>::count == 1)
-        {
-            this.pop();
-        }
-        else if (pos == LinkedList<T>::count - 1)
-        {
-
-            LinkedList<T>::tail->prev->next = NULL;
-            LinkedList<T>::tail = LinkedList<T>::tail->prev;
-        }
-        else
-        {
-            Element<T> *el = this[pop];
-            el->next->prev = el->prev;
-            el->prev->next = el->next;
-            delete el;
-        }
+        return false;
     }
-    */
 };
-
-bool f(int el)
-{
-    return true;
-}
-/*
-template <class T>
-bool predicate(Element<T> *cur)
-{
-	if (cur != NULL && cur->info > 0)
-	{
-		return true;
-	}
-	return false;
-}
-*/
 
 class goverment
 {
@@ -341,9 +328,44 @@ public:
         s << "Name of country: " << value.name << endl;
         s << "Capital of country: " << value.capital << endl;
         s << "Language of country: " << value.lang << endl;
-        s << "Main square of country: " << value.square << endl;
+        s << "Square of country: " << value.square << endl;
         s << "Population of country: " << value.population << endl;
         s << endl;
+        return s;
+    }
+    friend istream &operator>>(istream &s, goverment &value)
+    {
+        string temp;
+        int counter = 0;
+        while (getline(s, temp) && counter < 6)
+        {
+            if (temp.find("Name of country: ") != -1)
+            {
+                string help = "Name of country: ";
+                value.name = temp.substr(help.size());
+            }
+            if (temp.find("Capital of country: ") != -1)
+            {
+                string help = "Capital of country: ";
+                value.capital = temp.substr(help.size());
+            }
+            if (temp.find("Language of country: ") != -1)
+            {
+                string help = "Language of country: ";
+                value.lang = temp.substr(help.size());
+            }
+            if (temp.find("Square of country: ") != -1)
+            {
+                string help = "Square of country: ";
+                value.square = temp.substr(help.size());
+            }
+            if (temp.find("Population of country: ") != -1)
+            {
+                string help = "Population of country: ";
+                value.population = stoi(temp.substr(help.size()));
+            }
+            counter++;
+        }
         return s;
     }
     string getSquare()
@@ -366,6 +388,13 @@ bool someFunction(goverment value)
     return false;
 }
 
+ostream &myManip(ostream &s)
+{
+    s.unsetf(ios::dec);
+    s.setf(ios::scientific | ios::oct);
+    return s;
+}
+
 int main()
 {
 
@@ -377,7 +406,7 @@ int main()
     Queue<goverment> myQueue;
     Queue<goverment> myFilteredQueue;
     Queue<goverment> myModFilteredQueue;
-
+    Queue<goverment> loadedQueue;
     cout << "--------- Push test ---------" << endl;
 
     myQueue.push(Russia);
@@ -409,16 +438,20 @@ int main()
     myModFilteredQueue.print();
 
     cout << "--------- Saving test ---------" << endl;
-    //myQueue.save("test.txt");
-    ofstream fout("test.txt");
-    if (fout.is_open())
-    {
-        fout << "dsakdjalkjsklflkjasjfk";
-
-        fout.close();
-    }
+    myQueue.save("test.txt");
 
     cout << "--------- Loading test ---------" << endl;
+    try
+    {
+        myQueue.load("test.txt", loadedQueue);
+        loadedQueue.print();
+    }
+    catch (...)
+    {
+        cout << "Exception is here" << endl;
+    }
+    cout << "--------- Manipulator test ---------" << endl;
 
+    cout << myManip << myQueue << endl;
     return 0;
 }
