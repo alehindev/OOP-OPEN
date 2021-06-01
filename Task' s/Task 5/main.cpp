@@ -129,7 +129,7 @@ public:
         for (int i = 0; i < height; i++)
             ptr[i] = new double[width];
     }
-//КМБО 04-20 АЛЕХИН АРТЁМ
+    //КМБО 04-20 АЛЕХИН АРТЁМ
     BaseMatrix(const BaseMatrix &M)
     {
         height = M.height;
@@ -141,7 +141,7 @@ public:
             for (int j = 0; j < height; j++)
                 ptr[i][j] = M.ptr[i][j];
     }
-//КМБО 04-20 АЛЕХИН АРТЁМ
+    //КМБО 04-20 АЛЕХИН АРТЁМ
     ~BaseMatrix()
     {
         if (ptr != NULL)
@@ -165,7 +165,7 @@ public:
 
     double &operator()(int row, int column)
     {
-        if (row > height || row < 0 || column > width || column < 0)
+        if (row >= height || row < 0 || column >= width || column < 0)
             throw IndexOutOfBounds(row, column);
         return ptr[row][column];
     }
@@ -291,6 +291,27 @@ int main()
     b.randomValues();
     q.randomValues();
     z.randomValues();
+
+    try
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            int temp = rand() % 20;
+            b(0, i) = temp;
+        }
+    }
+    catch (IndexOutOfBounds exc)
+    {
+        exc.print();
+    }
+    catch (WrongSizeException exc)
+    {
+        exc.print();
+    }
+    catch (...)
+    {
+        cout << "Something went wrong!" << endl;
+    }
 
     pair<double, double> coor;
     coor = b.getCoorOfWeigth();
