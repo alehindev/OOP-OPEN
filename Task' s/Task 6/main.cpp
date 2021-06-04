@@ -1,5 +1,3 @@
-//КМБО 04-20 АЛЕХИН АРТЁМ
-
 
 #include <iostream>
 #include <bits/stdc++.h>
@@ -134,7 +132,18 @@ public:
     friend istream &operator>>(istream &s, LinkedList<T2> &el);
     virtual ~LinkedList()
     {
-        cout << "\nBase class destructor";
+        cout << "\nVirtual Base class destructor";
+        Element<T> *current;
+        Element<T> *help;
+        for (current = head; current != NULL;)
+        {
+            help = current->next;
+            delete current;
+            current = help;
+        }
+        head = NULL;
+        tail = NULL;
+        count = 0;
     }
 };
 
@@ -186,7 +195,6 @@ public:
 
     virtual ~Queue()
     {
-
         while (LinkedList<T>::head != NULL)
         {
             Element<T> *temp = LinkedList<T>::head->next;
@@ -399,7 +407,7 @@ ostream &myManip(ostream &s)
 
 int main()
 {
-
+    /*
     goverment Russia("Russia", "Moscow", "Russian", "Red Square", 145000000);
     goverment Usa("Usa", "Washington", "English", "Times Square", 369000000);
     goverment China("China", "Pekin", "Chinese", "Tiananmen Square", 1500000000);
@@ -440,7 +448,6 @@ int main()
     myModFilteredQueue.print();
 
     cout << "--------- Saving test ---------" << endl;
-    myQueue.save("test.txt");
 
     cout << "--------- Loading test ---------" << endl;
     try
@@ -455,6 +462,42 @@ int main()
     cout << "--------- Manipulator test ---------" << endl;
 
     cout << myManip << myQueue << endl;
+    */
+    cout << "--------- Base pointer test 1 ---------" << endl;
+    try
+    {
+        LinkedList<goverment> *ptr = new Queue<goverment>;
+        for (int i = 0; i < 4; i++)
+        {
+            goverment temp("Russia", "Moscow", "Russian", "Red Square", i);
+            ptr->push(temp);
+        }
+        cout << '\n'
+             << *ptr << "\n";
+        delete ptr;
+    }
+    catch (...)
+    {
+        cout << "Some problems with pointer" << endl;
+    }
+    cout << "--------- Base pointer test 2 ---------" << endl;
+    try
+    {
+        Queue<goverment> *ptr = new Queue<goverment>;
+        LinkedList<goverment> *ptr2 = dynamic_cast<LinkedList<goverment> *>(ptr);
+        for (int i = 0; i < 4; i++)
+        {
+            goverment temp("Russia", "Moscow", "Russian", "Red Square", i);
+            ptr->push(temp);
+        }
+        cout << '\n'
+             << *ptr2 << "\n";
+        delete ptr2;
+    }
+    catch (...)
+    {
+        cout << "Some problems with pointer" << endl;
+    }
     //КМБО 04-20 АЛЕХИН АРТЁМ//КМБО 04-20 АЛЕХИН АРТЁМ
     return 0;
 }

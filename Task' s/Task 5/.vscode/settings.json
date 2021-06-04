@@ -3,6 +3,7 @@
         "iosfwd": "cpp",
         "*.tcc": "cpp",
         "iostream": "cpp",
-        "charconv": "cpp"
+        "charconv": "cpp",
+        "new": "cpp"
     }
 }

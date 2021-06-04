@@ -142,7 +142,7 @@ public:
                 ptr[i][j] = M.ptr[i][j];
     }
     //КМБО 04-20 АЛЕХИН АРТЁМ
-    ~BaseMatrix()
+    virtual ~BaseMatrix()
     {
         if (ptr != NULL)
         {
@@ -201,7 +201,7 @@ public:
         cout << "myMatrix constructor is working" << endl;
     }
 
-    ~myMatrix()
+    virtual ~myMatrix()
     {
         cout << "myMatrix destructor is working" << endl;
     }
@@ -214,6 +214,16 @@ public:
             {
                 ptr[i][j] = rand() % 10;
             }
+        }
+    }
+    void clear(int h, int w)
+    {
+        if (ptr != NULL || (h == 0 && w == 0))
+        {
+            for (int i = 0; i < h; i++)
+                delete[] ptr[i];
+            delete[] ptr;
+            ptr = NULL;
         }
     }
     pair<double, double> getCoorOfWeigth()
@@ -261,12 +271,17 @@ public:
         int height, width;
 
         ustream >> height >> width;
+        if (height != obj.height || width != obj.width)
+        {
+            obj.clear(obj.height, obj.width);
+            obj.width = width;
+            obj.height = height;
 
-        obj.width = width;
-        obj.height = height;
-        obj.ptr = new double *[height];
-        for (int i = 0; i < height; i++)
-            obj.ptr[i] = new double[width];
+            obj.ptr = new double *[height];
+            for (int i = 0; i < height; i++)
+
+                obj.ptr[i] = new double[width];
+        }
 
         for (int i = 0; i < height; i++)
         {
@@ -340,11 +355,10 @@ int main()
         try
         {
 
-            int h, w, pos;
+            int h, w;
             h = 0;
             w = 0;
-            pos = fin.tellg();
-            myMatrix tempMatrix;
+            myMatrix tempMatrix(1, 1);
             while (fin >> tempMatrix)
             {
                 tempMatrix.print();
@@ -376,7 +390,15 @@ int main()
     {
         cout << "Something went wrong!" << endl;
     }
-
+    try
+    {
+        BaseMatrix *ptr = new myMatrix(2,2);
+        
+    }
+    catch (...)
+    {
+        cout << "Pointer problem";
+    }
     return 0;
 }
 //КМБО 04-20 АЛЕХИН АРТЁМ
