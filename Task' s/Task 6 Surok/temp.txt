@@ -1,0 +1,91 @@
+/*
+    goverment Russia("Russia", "Moscow", "Russian", "Red Square", 145000000);
+    goverment Usa("Usa", "Washington", "English", "Times Square", 369000000);
+    goverment China("China", "Pekin", "Chinese", "Tiananmen Square", 1500000000);
+    goverment Belarus("Belarus", "Minsk", "Russian", "October Square", 369000000);
+
+    Queue<goverment> myQueue;
+    Queue<goverment> myFilteredQueue;
+    Queue<goverment> myModFilteredQueue;
+    Queue<goverment> loadedQueue;
+    cout << "--------- Push test ---------" << endl;
+
+    myQueue.push(Russia);
+    myQueue.push(Usa);
+    myQueue.push(China);
+    myQueue.push(Belarus);
+    myQueue.print();
+
+    cout << "--------- Pop test ---------" << endl;
+    myQueue.pop();
+    myQueue.print();
+
+    cout << "--------- Find test ---------" << endl;
+
+    cout << *myQueue.find(Russia) << endl;
+
+    cout << "--------- Filter test ---------" << endl;
+
+    myQueue.Filter(&myFilteredQueue);
+    myFilteredQueue.print();
+
+    cout << "--------- ModifedFilter test ---------" << endl;
+    bool (*predicateptr)(goverment value);
+
+    predicateptr = someFunction;
+
+    myQueue.modifedFilter(&myModFilteredQueue, predicateptr);
+
+    myModFilteredQueue.print();
+
+    cout << "--------- Saving test ---------" << endl;
+
+    cout << "--------- Loading test ---------" << endl;
+    try
+    {
+        myQueue.load("test.txt", loadedQueue);
+        loadedQueue.print();
+    }
+    catch (...)
+    {
+        cout << "Exception is here" << endl;
+    }
+    cout << "--------- Manipulator test ---------" << endl;
+
+    cout << myManip << myQueue << endl;
+    */
+    cout << "--------- Base pointer test 1 ---------" << endl;
+    try
+    {
+        LinkedList<goverment> *ptr = new Queue<goverment>;
+        for (int i = 0; i < 4; i++)
+        {
+            goverment temp("Russia", "Moscow", "Russian", "Red Square", i);
+            ptr->push(temp);
+        }
+        cout << '\n'
+             << *ptr << "\n";
+        delete ptr;
+    }
+    catch (...)
+    {
+        cout << "Some problems with pointer" << endl;
+    }
+    cout << "--------- Base pointer test 2 ---------" << endl;
+    try
+    {
+        Queue<goverment> *ptr = new Queue<goverment>;
+        LinkedList<goverment> *ptr2 = dynamic_cast<LinkedList<goverment> *>(ptr);
+        for (int i = 0; i < 4; i++)
+        {
+            goverment temp("Russia", "Moscow", "Russian", "Red Square", i);
+            ptr->push(temp);
+        }
+        cout << '\n'
+             << *ptr2 << "\n";
+        delete ptr2;
+    }
+    catch (...)
+    {
+        cout << "Some problems with pointer" << endl;
+    }

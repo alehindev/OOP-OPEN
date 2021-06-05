@@ -1,15 +1,12 @@
-//КМБО 04-20 АЛЕХИН АРТЁМ
-//КМБО 04-20 АЛЕХИН АРТЁМ
-//КМБО 04-20 АЛЕХИН АРТЁМ
-#include <bits/stdc++.h>
 #include <iostream>
+
+#include <bits/stdc++.h>
 
 using namespace std;
 
 class Exception : public exception
 {
 protected:
-    //сообщение об ошибке
     char *str;
 
 public:
@@ -27,17 +24,46 @@ public:
     {
         delete[] str;
     }
-    //функцию вывода можно будет переопределить в производных классах, когда будет ясна конкретика
     virtual void print()
     {
         cout << "Exception: " << str << "; " << what();
     }
 };
 
+class WrongBorderValue : public Exception
+{
+protected:
+    int value;
+
+public:
+    WrongBorderValue(int val) : Exception("Wrong value of border")
+    {
+        value = val;
+    }
+
+    WrongBorderValue() : Exception("Wrong value of border")
+    {
+        value = -1;
+    }
+
+    WrongBorderValue(const WrongBorderValue &e) : Exception("Wrong value of border")
+    {
+        str = new char[strlen(e.str) + 1];
+        strcpy(str, e.str);
+        value = e.value;
+    }
+
+    virtual void print()
+    {
+        cout << "Exception: " << str << "; value of  border: " << value << "; " << what();
+    }
+};
+
 class WrongSizeException : public Exception
 {
 protected:
-    int height, width;
+    int height,
+        width;
 
 public:
     WrongSizeException(int H, int W) : Exception("Wrong size")
@@ -91,8 +117,8 @@ public:
 
     virtual void print()
     {
-        cout << "Exception: " << str << "; index_1: " << index1 << "; "
-             << "; index_2: " << index2 << "; " << what();
+        cout << "Exception: " << str << "; index 1 : " << index1 << "; "
+             << "; index 2 : " << index2 << "; " << what();
     }
 };
 
@@ -116,7 +142,6 @@ public:
         height = 0;
         width = 0;
     }
-    //КМБО 04-20 АЛЕХИН АРТЁМ
     BaseMatrix(int Height, int Width)
     {
         if (Height < 1 && Width < 1)
@@ -127,9 +152,8 @@ public:
         width = Width;
         ptr = new double *[height];
         for (int i = 0; i < height; i++)
-            ptr[i] = new double[width](1, 2);
+            ptr[i] = new double[width];
     }
-    //КМБО 04-20 АЛЕХИН АРТЁМ
     BaseMatrix(const BaseMatrix &M)
     {
         height = M.height;
@@ -141,7 +165,7 @@ public:
             for (int j = 0; j < height; j++)
                 ptr[i][j] = M.ptr[i][j];
     }
-    //КМБО 04-20 АЛЕХИН АРТЁМ
+
     virtual ~BaseMatrix()
     {
         if (ptr != NULL)
@@ -175,7 +199,7 @@ public:
         BaseMatrix Res(width, height);
         for (int i = 0; i < height; i++)
             for (int j = 0; j < width; j++)
-                Res.ptr[j][i] = ptr[i][j]; // Res(j,i) = ptr[i][j];
+                Res.ptr[j][i] = ptr[i][j];
 
         return Res;
     }
@@ -188,31 +212,31 @@ public:
     }
 };
 
-class myMatrix : public BaseMatrix
+class Matrix : public BaseMatrix
 {
 public:
-    myMatrix() : BaseMatrix()
+    Matrix() : BaseMatrix()
     {
-        cout << "myMatrix default constructor is working" << endl;
+        cout << "Matrix default constructor is working" << endl;
     }
 
-    myMatrix(int Height, int Width) : BaseMatrix(Height, Width)
+    Matrix(int Height, int Width) : BaseMatrix(Height, Width)
     {
-        cout << "myMatrix constructor is working" << endl;
+        cout << "Matrix constructor is working" << endl;
     }
 
-    virtual ~myMatrix()
+    virtual ~Matrix()
     {
-        cout << "myMatrix destructor is working" << endl;
+        cout << "Matrix destructor is working" << endl;
     }
 
-    void randomValues()
+    void random()
     {
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)
             {
-                ptr[i][j] = rand() % 10;
+                ptr[i][j] = rand() % 30;
             }
         }
     }
@@ -226,60 +250,99 @@ public:
             ptr = NULL;
         }
     }
-    pair<double, double> getCoorOfWeigth()
+
+    Matrix updateMatrix(int border)
     {
-        double x, y, divider;
-        divider = x = y = 0;
+        vector<int> rows(height);
+        vector<int> rows_used;
+        vector<int> columns(width);
+        vector<int> cols_used;
+
+        if (border <= 0)
+        {
+            throw WrongBorderValue(border);
+        }
+
         for (int i = 0; i < height; i++)
         {
+            int rowSum = 0;
             for (int j = 0; j < width; j++)
             {
-                x += ptr[i][j] * (i + 1);
-                y += ptr[i][j] * (j + 1);
-                divider += ptr[i][j];
-            }
-        }
-        x /= divider;
-        y /= divider;
-        return (make_pair(x, y));
-    }
-    friend ostream &operator<<(ostream &ustream, myMatrix &obj)
-    {
+                rowSum += ptr[i][j];
+                columns[j] += ptr[i][j];
 
-        ustream << obj.height << " " << obj.width << '\n';
+                if (columns[j] > border)
+                {
+                    cols_used.push_back(j);
+                }
+            }
+            if (rowSum > border)
+            {
+                rows_used.push_back(i);
+            }
+            rows[i] = rowSum;
+        }
+        if ((height - rows_used.size() > 0) && (width - cols_used.size() > 0))
+        {
+            Matrix res(height - rows_used.size(), width - cols_used.size());
+            int i_res, j_res;
+            i_res = j_res = 0;
+            for (int i = 0; i < height; i++)
+            {
+                if (find(rows_used.begin(), rows_used.end(), i) == rows_used.end() || rows_used.size() == 0)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        if (find(cols_used.begin(), cols_used.end(), j) == cols_used.end() || cols_used.size() == 0)
+                        {
+                            res(i_res, j_res) = ptr[i][j];
+                            j_res++;
+                        }
+                    }
+                    j_res = 0;
+                    i_res++;
+                }
+            }
+            return res;
+        }
+        else
+        {
+            Matrix res(0, 0);
+            return res;
+        }
+    }
+
+    friend ostream &operator<<(ostream &outStream, Matrix &obj)
+    {
+        outStream << obj.height << " " << obj.width << '\n';
         for (int i = 0; i < obj.height; i++)
         {
             for (int j = 0; j < obj.width; j++)
             {
                 if (j == obj.width - 1)
                 {
-                    ustream << obj.ptr[i][j];
+                    outStream << obj.ptr[i][j];
                 }
                 else
                 {
-                    ustream << obj.ptr[i][j] << " ";
+                    outStream << obj.ptr[i][j] << " ";
                 }
             }
-            ustream << "\n";
+            outStream << "\n";
         }
-        return ustream;
+        return outStream;
     }
-    friend istream &operator>>(istream &ustream, myMatrix &obj)
+    friend istream &operator>>(istream &inStream, Matrix &obj)
     {
-        int temp;
-
         int height, width;
-
-        ustream >> height >> width;
+        inStream >> height >> width;
         if (height != obj.height || width != obj.width)
         {
             obj.clear(obj.height, obj.width);
             obj.width = width;
             obj.height = height;
-
             obj.ptr = new double *[height];
             for (int i = 0; i < height; i++)
-
                 obj.ptr[i] = new double[width];
         }
 
@@ -287,35 +350,27 @@ public:
         {
             for (int j = 0; j < width; j++)
             {
-                ustream >> temp;
-                obj.ptr[i][j] = temp;
+                int t;
+                inStream >> t;
+                obj.ptr[i][j] = t;
             }
         }
 
-        return ustream;
+        return inStream;
     }
 };
-//КМБО 04-20 АЛЕХИН АРТЁМ
+
 int main()
 {
-    BaseMatrix a(2, 2);
-    myMatrix b(3, 3);
-    myMatrix q(3, 3);
-    myMatrix z(4, 5);
-
-    b.randomValues();
-    q.randomValues();
-    z.randomValues();
-
+    Matrix base(3, 3);
+    base.random();
+    base.print();
     try
     {
-        for (int i = 0; i < 10; i++)
-        {
-            int temp = rand() % 20;
-            b(0, i) = temp;
-        }
+        Matrix newBase = base.updateMatrix(-1);
+        newBase.print();
     }
-    catch (IndexOutOfBounds exc)
+    catch (WrongBorderValue exc)
     {
         exc.print();
     }
@@ -323,25 +378,24 @@ int main()
     {
         exc.print();
     }
+    catch (IndexOutOfBounds exc)
+    {
+        exc.print();
+    }
     catch (...)
     {
-        cout << "Something went wrong!" << endl;
+        cout << "Something wrong!!" << endl;
     }
-
-    pair<double, double> coor;
-    coor = b.getCoorOfWeigth();
-    cout << endl
-         << coor.first << " " << coor.second << endl
-         << endl;
 
     ofstream fout("test.txt");
     if (fout)
     {
         try
         {
-            fout << q;
-            fout << b;
-            fout << z;
+            Matrix temp(4, 5);
+            temp.random();
+            fout << base;
+            fout << temp;
             fout.close();
         }
         catch (...)
@@ -355,10 +409,8 @@ int main()
         try
         {
 
-            int h, w;
-            h = 0;
-            w = 0;
-            myMatrix tempMatrix(1, 1);
+            Matrix tempMatrix(1, 1);
+
             while (fin >> tempMatrix)
             {
                 tempMatrix.print();
@@ -373,32 +425,5 @@ int main()
         }
     }
 
-    try
-    {
-        BaseMatrix a(2, 2);
-        a(2, -1) = 123;
-    }
-    catch (IndexOutOfBounds exc)
-    {
-        exc.print();
-    }
-    catch (WrongSizeException exc)
-    {
-        exc.print();
-    }
-    catch (...)
-    {
-        cout << "Something went wrong!" << endl;
-    }
-    try
-    {
-        BaseMatrix *ptr = new myMatrix(2, 2);
-    }
-    catch (...)
-    {
-        cout << "Pointer problem";
-    }
     return 0;
 }
-//КМБО 04-20 АЛЕХИН АРТЁМ
-//КМБО 04-20 АЛЕХИН АРТЁМ
